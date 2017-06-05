@@ -1,0 +1,8 @@
+.settings
+.classpath
+.project
+.tern-project
+src/main/resources/application.properties
+
+target/
+widgetsets
