@@ -27,7 +27,7 @@ public class VehicleDaoImpl implements VehicleDao{
 
 	@Override
 	public List<Vehicle> findAll() {
-		return this.entityManager.createQuery("SELECT v FROM Vehicle v ORDER BY v.id", Vehicle.class).getResultList();
+		return this.entityManager.createQuery("SELECT v FROM Vehicle v ORDER BY v.active, v.id", Vehicle.class).getResultList();
 	}
 
 	@Override

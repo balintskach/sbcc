@@ -39,7 +39,7 @@ import hu.mik.java2.service.VehicleService;
 import hu.mik.java2.vehicle.bean.Vehicle;
 import hu.mik.java2.email.EmailService;
 
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 @SpringView(name = VehicleView.VEHICLE_VIEW_NAME)
 public class VehicleView extends VerticalLayout implements View {
 
@@ -47,16 +47,15 @@ public class VehicleView extends VerticalLayout implements View {
 
 	private BeanContainer<Long, Vehicle> vehicleBean;
 
-	
 	Set<Object> selectedItemIds = new HashSet<Object>();
-	
+
 	@Autowired
 	private ApplicationContext ctx;
 
 	@Autowired
 	@Qualifier("vehicleServiceImpl")
 	private VehicleService vehicleService;
-	
+
 	@Autowired
 	@Qualifier("emailService")
 	private EmailService vehicleEmail;
@@ -72,7 +71,7 @@ public class VehicleView extends VerticalLayout implements View {
 		this.addComponent(functionComponent);
 		this.setComponentAlignment(functionComponent, Alignment.TOP_CENTER);
 		this.addComponent(createTable());
-		
+
 	}
 
 	private Component createFunctionLayout() {
@@ -88,9 +87,12 @@ public class VehicleView extends VerticalLayout implements View {
 		Component newVehicleComponent = createNewVehicleButton();
 		horizontalLayout.addComponent(newVehicleComponent);
 		horizontalLayout.setComponentAlignment(newVehicleComponent, Alignment.BOTTOM_CENTER);
-		Component deleteVehicleComponent = deleteVehicleButton();
-		horizontalLayout.addComponent(deleteVehicleComponent);
-		horizontalLayout.setComponentAlignment(deleteVehicleComponent, Alignment.BOTTOM_CENTER);
+		/*
+		 * Component deleteVehicleComponent = deleteVehicleButton();
+		 * horizontalLayout.addComponent(deleteVehicleComponent);
+		 * horizontalLayout.setComponentAlignment(deleteVehicleComponent,
+		 * Alignment.BOTTOM_CENTER);
+		 */
 		Component backToMainComponent = backToMainViewButton();
 		horizontalLayout.addComponent(backToMainComponent);
 		horizontalLayout.setComponentAlignment(backToMainComponent, Alignment.BOTTOM_CENTER);
@@ -119,65 +121,60 @@ public class VehicleView extends VerticalLayout implements View {
 	
 	private Component createActiveField() {
 		final CheckBox activeCheckBox = new CheckBox("Csak az aktív munkák");
-			activeCheckBox.addValueChangeListener(new ValueChangeListener() {
-				
-				@Override
-				public void valueChange(ValueChangeEvent event) {
-					if(activeCheckBox.getValue()){
-						vehicleBean.removeAllItems();
-						vehicleBean.addAll(vehicleService.findByActiveLike(1));
-					}else{
-						refreshTable();
-					}
-					
+		activeCheckBox.setValue(true);
+		activeCheckBox.setImmediate(true);
+		activeCheckBox.addValueChangeListener(new ValueChangeListener() {
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if (activeCheckBox.getValue()) {
+					vehicleBean.removeAllItems();
+					vehicleBean.addAll(vehicleService.findByActiveLike(1));
+				} else {
+					refreshTable();
 				}
-			});
-		
+
+			}
+		});
+
 		return activeCheckBox;
 	}
-	
+
 	private Component createNewVehicleButton() {
 		Button newVehicleButton = new Button("Új munka hozzáadása");
-		
+
 		newVehicleButton.addClickListener(new ClickListener() {
-			
+
 			@Override
 			public void buttonClick(ClickEvent event) {
-				Vehicle vehicle= new Vehicle();
+				Vehicle vehicle = new Vehicle();
 				ctx.getBean(VehicleWindow.class).showWindow(vehicle, "Új munka hozzáadása", false, VehicleView.this);
 			}
 		});
-		
+
 		return newVehicleButton;
 	}
-	
-	private Component deleteVehicleButton() {
-		Button deleteVehicleButton = new Button("Kijelöltek törlése");
 
-		deleteVehicleButton.addClickListener(new ClickListener() {
+	/*
+	 * private Component deleteVehicleButton() { Button deleteVehicleButton =
+	 * new Button("Kijelöltek törlése");
+	 * 
+	 * deleteVehicleButton.addClickListener(new ClickListener() {
+	 * 
+	 * @Override public void buttonClick(ClickEvent event) { try { for (Object
+	 * itemId : selectedItemIds) { BeanItem<Vehicle> vehicleItem =
+	 * (BeanItem<Vehicle>) vehicleTable.getItem(itemId); BeanFieldGroup<Vehicle>
+	 * vehicleFieldGroup = new BeanFieldGroup<Vehicle>(Vehicle.class);
+	 * vehicleFieldGroup.setItemDataSource(vehicleItem);
+	 * vehicleFieldGroup.commit(); Vehicle bean =
+	 * vehicleFieldGroup.getItemDataSource().getBean();
+	 * vehicleService.deleteVehicle(bean); } refreshTable();
+	 * selectedItemIds.removeAll(selectedItemIds);
+	 * Notification.show("Sikeres jármű törlés!"); } catch (Exception e) {
+	 * Notification.show("Hiba törlés közben!"); } } }); return
+	 * deleteVehicleButton; }
+	 */
 
-			@Override
-			public void buttonClick(ClickEvent event) {
-				try {
-					for (Object itemId : selectedItemIds) {
-						BeanItem<Vehicle> vehicleItem = (BeanItem<Vehicle>) vehicleTable.getItem(itemId);
-						BeanFieldGroup<Vehicle> vehicleFieldGroup = new BeanFieldGroup<Vehicle>(Vehicle.class);
-						vehicleFieldGroup.setItemDataSource(vehicleItem);
-						vehicleFieldGroup.commit();
-						Vehicle bean = vehicleFieldGroup.getItemDataSource().getBean();
-						vehicleService.deleteVehicle(bean);
-				}
-					refreshTable();
-					selectedItemIds.removeAll(selectedItemIds);
-					Notification.show("Sikeres jármű törlés!");
-			} catch (Exception e) {
-					Notification.show("Hiba törlés közben!");
-				}
-			}
-		});
-		return deleteVehicleButton;
-	}
-	
 	private Component backToMainViewButton() {
 		Button backButton = new Button("Vissza a főoldalra");
 
@@ -190,7 +187,7 @@ public class VehicleView extends VerticalLayout implements View {
 		});
 		return backButton;
 	}
-	
+
 	private Component logOutButton() {
 		Button logOutButoon = new Button("Kilépés");
 
@@ -202,13 +199,15 @@ public class VehicleView extends VerticalLayout implements View {
 						VaadinServlet.getCurrent().getServletContext().getContextPath() + "/login?logout=1");
 			}
 		});
-		
+
 		return logOutButoon;
 	}
 
 	protected void refreshTable() {
 		vehicleBean.removeAllItems();
 		vehicleBean.addAll(vehicleService.listVehicles());
+		
+		
 	}
 
 	private Component createTable() {
@@ -218,26 +217,19 @@ public class VehicleView extends VerticalLayout implements View {
 		vehicleTable.setContainerDataSource(vehicleBean);
 		vehicleTable.setSizeFull();
 
-		vehicleTable.addGeneratedColumn("selector", new ColumnGenerator() {
-
-			@Override
-			public Object generateCell(Table source, final Object itemId, Object columnId) {
-				CheckBox deleteCB = new CheckBox();
-				deleteCB.addValueChangeListener(new ValueChangeListener() {
-
-					@Override
-					public void valueChange(ValueChangeEvent event) {
-						if (selectedItemIds.contains(itemId)) {
-							selectedItemIds.remove(itemId);
-						} else {
-							selectedItemIds.add(itemId);
-						}
-					}
-				});
-
-				return deleteCB;
-			}
-		});
+		/*
+		 * vehicleTable.addGeneratedColumn("selector", new ColumnGenerator() {
+		 * 
+		 * @Override public Object generateCell(Table source, final Object
+		 * itemId, Object columnId) { CheckBox deleteCB = new CheckBox();
+		 * deleteCB.addValueChangeListener(new ValueChangeListener() {
+		 * 
+		 * @Override public void valueChange(ValueChangeEvent event) { if
+		 * (selectedItemIds.contains(itemId)) { selectedItemIds.remove(itemId);
+		 * } else { selectedItemIds.add(itemId); } } });
+		 * 
+		 * return deleteCB; } });
+		 */
 
 		vehicleTable.addGeneratedColumn("viewVehicle", new ColumnGenerator() {
 
@@ -258,12 +250,15 @@ public class VehicleView extends VerticalLayout implements View {
 			}
 		});
 
-		vehicleTable.addGeneratedColumn("editVehicle", new ColumnGenerator() {
+		vehicleTable.addGeneratedColumn("viewEditLayout", new ColumnGenerator() {
 
 			@Override
 			public Object generateCell(final Table source, final Object itemId, Object columnId) {
+				VerticalLayout viewEditLayout = new VerticalLayout();
+
+				viewEditLayout.setMargin(true);
+				viewEditLayout.setSpacing(true);
 				Button editVehicleButton = new Button("Szerkesztés");
-				
 
 				editVehicleButton.addClickListener(new ClickListener() {
 
@@ -274,116 +269,221 @@ public class VehicleView extends VerticalLayout implements View {
 								VehicleView.this);
 					}
 				});
-				return editVehicleButton;
+				Button viewVehicleButton = new Button("Megtekintés");
+				viewVehicleButton.addClickListener(new ClickListener() {
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						BeanItem<Vehicle> vehicleItem = (BeanItem<Vehicle>) source.getItem(itemId);
+						ctx.getBean(VehicleWindow.class).showWindow(vehicleItem.getBean(), "Megtekintés", true,
+								VehicleView.this);
+					}
+				});
+
+				viewEditLayout.addComponent(editVehicleButton);
+				viewEditLayout.setComponentAlignment(editVehicleButton, Alignment.MIDDLE_CENTER);
+				viewEditLayout.addComponent(viewVehicleButton);
+				viewEditLayout.setComponentAlignment(viewVehicleButton, Alignment.MIDDLE_CENTER);
+				return viewEditLayout;
 			}
 		});
-		
-		vehicleTable.addGeneratedColumn("increaseStatus", new ColumnGenerator(){
+
+		vehicleTable.addGeneratedColumn("increaseStatus", new ColumnGenerator() {
 
 			@Override
-			public Object generateCell(final Table source,final Object itemId, Object columnId) {
-				Button increaseStatusButton = new Button("Növelés");
+			public Object generateCell(final Table source, final Object itemId, Object columnId) {
 				final BeanItem<Vehicle> vehicleItem = (BeanItem<Vehicle>) source.getItem(itemId);
-				
+
 				HorizontalLayout statusLayout = new HorizontalLayout();
 				statusLayout.setMargin(true);
 				statusLayout.setSpacing(true);
+				if (checkActive(vehicleItem.getBean())) {
 
-				ProgressBar statusProgressBar = new ProgressBar();
-				
-				statusProgressBar.setValue(calculateStatusPercentage(vehicleItem.getBean()));
-				
-				increaseStatusButton.addClickListener(new ClickListener() {
-					
-					@Override
-					public void buttonClick(ClickEvent event) {
-						
-						vehicleItem.getBean().setStatus(increaseStatus(vehicleItem.getBean()));
-						
-						vehicleService.updateVehicle(vehicleItem.getBean());
-					
-					
-						Notification.show("Sikeres státusz növelés! jelenlegi státusz: " + vehicleItem.getBean().getStatus());
-						sendMail(vehicleItem.getBean());
-						refreshTable();
-					}
+					if (!checkStatus(vehicleItem.getBean())) {
+						Button increaseStatusButton = new Button("Növelés");
+						ProgressBar statusProgressBar = new ProgressBar();
+						statusProgressBar.setValue(calculateStatusPercentage(vehicleItem.getBean()));
 
-					private void sendMail(Vehicle bean) {
-						String toAddress = bean.getEmail();
-						String fromAddress = "java2balintskach@gmail.com";
-						String subject = "Order status";
-						String msg = bean.getLicenseplate() + " rendszámú jármű " + bean.getJobtype() + "típusú munkának státusza:" + bean.getStatus() +".";
-						vehicleEmail.readyToSendEmail(toAddress, fromAddress, subject, msg);
-					}
+						increaseStatusButton.addClickListener(new ClickListener() {
 
-					private Integer increaseStatus(Vehicle bean) {
-						if (bean.getStatus() >= getMaxStatusByJobtype(bean)){
-							return bean.getStatus();
-						}else{
-							return bean.getStatus()+1;
-						}
+							@Override
+							public void buttonClick(ClickEvent event) {
+
+								vehicleItem.getBean().setStatus(increaseStatus(vehicleItem.getBean()));
+
+								vehicleService.updateVehicle(vehicleItem.getBean());
+
+								Notification.show("Sikeres státusz növelés! jelenlegi státusz: "
+										+ getStatusName(vehicleItem.getBean()));
+								
+								if (vehicleItem.getBean().getRequiredetails() == 1 && vehicleItem.getBean()
+										.getStatus() != getMaxStatusByJobtype(vehicleItem.getBean())) {
+									vehicleEmail.readyToSendEmail(vehicleItem.getBean().getEmail(),
+											"java2balintskach@gmail.com",
+											"Jármű státusza: " + vehicleItem.getBean().getStatus(),
+											"Tisztelt " + vehicleItem.getBean().getOwner() + "!\n" + "#"
+													+ vehicleItem.getBean().getId() + " "
+													+ vehicleItem.getBean().getLicenseplate()
+													+ " rendszámú jármű jelenlegi státusza: "
+													+ getStatusName(vehicleItem.getBean()) + ".");
+								}
+								refreshTable();
+
+							}
+
+						});
+
+						statusLayout.addComponent(statusProgressBar);
+						statusLayout.setComponentAlignment(statusProgressBar, Alignment.MIDDLE_CENTER);
+
+						statusLayout.addComponent(increaseStatusButton);
+						statusLayout.setComponentAlignment(increaseStatusButton, Alignment.MIDDLE_CENTER);
+					} else {
+						Button finishJobButton = new Button("Lezárás");
+						finishJobButton.addClickListener(new ClickListener() {
+
+							@Override
+							public void buttonClick(ClickEvent event) {
+								vehicleItem.getBean().setActive(0);
+								vehicleService.updateVehicle(vehicleItem.getBean());
+								Notification.show("#" + vehicleItem.getBean().getId() + " "
+										+ vehicleItem.getBean().getLicenseplate() + " lezárva.");
+								vehicleEmail.readyToSendEmail(vehicleItem.getBean().getEmail(),
+										"java2balintskach@gmail.com", "Jármű elkészült",
+										"Tisztelt " + vehicleItem.getBean().getOwner() + "!\n" + "#"
+												+ vehicleItem.getBean().getId() + " "
+												+ vehicleItem.getBean().getLicenseplate()
+												+ " rendszámú jármű elkészült és átvehető.");
+								refreshTable();
+							}
+						});
+
+						statusLayout.addComponent(finishJobButton);
+						statusLayout.setComponentAlignment(finishJobButton, Alignment.MIDDLE_CENTER);
 					}
-				});
-				
-				
-				statusLayout.addComponent(statusProgressBar);
-				statusLayout.setComponentAlignment(statusProgressBar, Alignment.MIDDLE_LEFT);
-				
-				statusLayout.addComponent(increaseStatusButton);
-				statusLayout.setComponentAlignment(increaseStatusButton, Alignment.MIDDLE_LEFT);
-				
+				} else {
+					Label closedLabel = new Label("Lezárva");
+					statusLayout.addComponent(closedLabel);
+					statusLayout.setComponentAlignment(closedLabel, Alignment.MIDDLE_CENTER);
+				}
 				return statusLayout;
+			}
+
+			private String getStatusName(Vehicle bean) {
+				String jobType = bean.getJobtype();
+				Integer status = bean.getStatus();
+				if (jobType.contains("Eredetiség vizsgálat")) {
+					switch (status) {
+					case 0:
+						return "Felvéve a rendszerbe";
+					case 1:
+						return "Elkészült";
+					}
+				} else if (jobType.contains("Szélvédő javítás")) {
+					switch (status) {
+					case 0:
+						return "Felvéve a rendszerbe";
+					case 1:
+						return "Megérkezett a jármű";
+					case 2:
+						return "Új szélvédőre várunk";
+					case 3:
+						return "Munka folyamatban van";
+					case 4:
+						return "Átvehető a jármű";
+					}
+				} else {
+					switch (status) {
+					case 0:
+						return "Felvéve a rendszerbe";
+					case 1:
+						return "Megérkezett a jármű";
+					case 2:
+						return "Alkatrészre várunk";
+					case 3:
+						return "Munka folyamatban van";
+					case 4:
+						return "A jármű a fényezőnél van";
+					case 5:
+						return "Összeszerelés folyamatban van";
+					case 6:
+						return "Átvehető a jármű";
+					}
+				}
+				return status.toString();
+			}
+
+			private boolean checkActive(Vehicle bean) {
+				return bean.getActive() == 1 ? true : false;
+			}
+
+			private boolean checkStatus(Vehicle bean) {
+				return bean.getStatus() >= getMaxStatusByJobtype(bean) ? true : false;
+			}
+
+			private void sendMail(Vehicle bean) {
+				String toAddress = bean.getEmail();
+				String fromAddress = "java2balintskach@gmail.com";
+				String subject = "Order status";
+				String msg = bean.getLicenseplate() + " rendszámú jármű " + bean.getJobtype()
+						+ "típusú munkának státusza:" + bean.getStatus() + ".";
+				vehicleEmail.readyToSendEmail(toAddress, fromAddress, subject, msg);
+			}
+
+			private Integer increaseStatus(Vehicle bean) {
+				if (bean.getStatus() >= getMaxStatusByJobtype(bean)) {
+					return bean.getStatus();
+				} else {
+					return bean.getStatus() + 1;
+				}
 			}
 
 			private Float calculateStatusPercentage(Vehicle bean) {
 				Integer currentStatus = bean.getStatus();
-				Float maxStatus = (float)(getMaxStatusByJobtype(bean));
-				
-				if(currentStatus == 0){
-					 return 0.0f;
-				}else{
-					return (float)(currentStatus)/maxStatus; 
+				Float maxStatus = (float) (getMaxStatusByJobtype(bean));
+
+				if (currentStatus == 0) {
+					return 0.0f;
+				} else {
+					return (float) (currentStatus) / maxStatus;
 				}
 			}
 
 			private Integer getMaxStatusByJobtype(Vehicle bean) {
 				String jobtype = bean.getJobtype();
-				if(jobtype.equals("Eredetiség vizsgálat")){
+				if (jobtype.equals("Eredetiség vizsgálat")) {
 					return 1;
-				}else if(jobtype.equals("Szélvédő javítás")){
+				} else if (jobtype.equals("Szélvédő javítás")) {
 					return 4;
-				}else if(jobtype.equals("Karosszéria lakatolás")){
+				} else if (jobtype.equals("Karosszéria lakatolás")) {
 					return 6;
-				}else {
+				} else {
 					return 0;
 				}
 			}
-			
+
 		});
-		
-		
-		
-		vehicleTable.setVisibleColumns("selector", "id" , "licenseplate" ,"owner", "email", "registrydate", "jobtype","editVehicle", "increaseStatus");
-		vehicleTable.setColumnHeader("selector", "");
+
+		vehicleTable.setVisibleColumns("id", "licenseplate", "owner", "email", "registrydate", "jobtype",
+				"viewEditLayout", "increaseStatus");
 		vehicleTable.setColumnHeader("id", "ID");
 		vehicleTable.setColumnHeader("licenseplate", "Rendszám");
 		vehicleTable.setColumnHeader("owner", "Tulajdonos");
 		vehicleTable.setColumnHeader("emailaddress", "Email cím");
 		vehicleTable.setColumnHeader("registrydate", "Felvétel dátuma");
 		vehicleTable.setColumnHeader("jobtype", "Típus");
-		vehicleTable.setColumnHeader("editVehicle", "Részletek");
+		vehicleTable.setColumnHeader("viewEditLayout", "Részletek");
 		vehicleTable.setColumnHeader("increaseStatus", "Státusz");
 
-		vehicleTable.setColumnAlignment("selector", Align.CENTER);
 		vehicleTable.setColumnAlignment("id", Align.CENTER);
 		vehicleTable.setColumnAlignment("licenseplate", Align.CENTER);
 		vehicleTable.setColumnAlignment("owner", Align.CENTER);
 		vehicleTable.setColumnAlignment("emailaddress", Align.CENTER);
 		vehicleTable.setColumnAlignment("registrydate", Align.CENTER);
 		vehicleTable.setColumnAlignment("jobtype", Align.CENTER);
-		vehicleTable.setColumnAlignment("editVehicle", Align.CENTER);
+		vehicleTable.setColumnAlignment("viewEditLayout", Align.CENTER);
 		vehicleTable.setColumnAlignment("increaseStatus", Align.LEFT);
-		
+
 		return vehicleTable;
 	}
 

@@ -1,5 +1,6 @@
 package hu.mik.java2.vaadin;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -74,9 +75,12 @@ public class VehicleWindow extends Window {
 					vehicleBeanField.commit();
 					Vehicle bean = vehicleBeanField.getItemDataSource().getBean();
 					if (bean.getId() == null) {
-
+						if(bean.getRequiredetails() == null){
+							bean.setRequiredetails(0);
+						}
 						bean.setActive(1);
 						bean.setStatus(0);
+						
 						vehicleService.saveVehicle(bean);
 					} else {
 						vehicleService.updateVehicle(bean);
@@ -84,6 +88,7 @@ public class VehicleWindow extends Window {
 					VehicleWindow.this.close();
 					Notification.show("Sikeres járműhozzáadás/módosítás!");
 					vehicleView.refreshTable();
+					
 				} catch (Exception e) {
 					Notification.show("Hiba történt mentés/módosítás közben!");
 				}
@@ -117,6 +122,7 @@ public class VehicleWindow extends Window {
 		TextField emailField = vehicleBeanField.buildAndBind("Email", "email", TextField.class);
 		emailField.setNullRepresentation("");
 		emailField.setReadOnly(isReadonly);
+		
 		formLayout.addComponent(emailField);
 
 		DateField registrydateField = vehicleBeanField.buildAndBind("Felvétel időpontja", "registrydate",
